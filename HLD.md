@@ -2,14 +2,14 @@
 
 ## 1. Overview
 
-This document outlines the high-level architecture and design of the Notion-like note-taking application. The application is designed to be a single-page application (SPA) with a backend-as-a-service (BaaS).
+This document outlines the high-level architecture and design of the Notion-like note-taking application. The application is designed as a multi-service application, containerized with Docker and orchestrated using Docker Compose.
 
 ## 2. Architecture
 
-The system is composed of two main components:
+The system is composed of two main services, managed by Docker Compose:
 
 -   **Frontend Application:** A Vue.js Single-Page Application (SPA) that runs in the user's browser. It is responsible for the user interface, user experience, and all client-side logic.
--   **Backend Service:** A PocketBase instance that provides the database, user authentication, and a real-time API.
+-   **Backend Service:** A custom Go application that embeds and utilizes PocketBase as a library, providing the database, user authentication, and a real-time API.
 
 ### 2.1. Frontend (Vue.js)
 
@@ -19,11 +19,12 @@ The system is composed of two main components:
 -   **State Management:** `pinia` is used to manage global application state, including the authenticated user's session and cached data like the page tree.
 -   **Styling:** TailwindCSS is used for a utility-first styling approach.
 
-### 2.2. Backend (PocketBase)
+### 2.2. Backend (Go with PocketBase)
 
--   **Service:** A pre-built PocketBase executable.
--   **Authentication:** PocketBase's built-in authentication will be used to manage users, sessions, and access control.
--   **Database:** PocketBase's integrated database will store all application data.
+-   **Language/Framework:** Go, embedding PocketBase as a library.
+-   **Authentication:** PocketBase's built-in authentication is utilized through the Go application to manage users, sessions, and access control.
+-   **Database:** PocketBase's integrated SQLite database stores all application data.
+-   **API:** The Go application exposes a RESTful API and real-time capabilities provided by PocketBase.
 
 ## 3. Data Models (PocketBase Collections)
 
@@ -47,7 +48,16 @@ The following collections will be created in PocketBase:
 -   `page` (relation to `pages`) - The page this task belongs to.
 -   `owner` (relation to `users`, required)
 
-## 4. Core Feature Flow: Creating a Page
+## 4. Deployment with Docker Compose
+
+Docker Compose is used to define and run the multi-container Docker application. The `docker-compose.yaml` file orchestrates the following services:
+
+-   **`frontend`**: Builds the Vue.js application and serves it.
+-   **`backend`**: Builds and runs the Go application, which includes the PocketBase instance.
+
+This setup simplifies development, testing, and deployment by encapsulating each service and its dependencies within containers.
+
+## 5. Core Feature Flow: Creating a Page
 
 1.  User clicks "New Page" in the UI.
 2.  The Pinia store updates the local state to show a new, unsaved page in the sidebar.
