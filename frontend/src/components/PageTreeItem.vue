@@ -31,6 +31,7 @@
 import { usePagesStore } from '../stores/pages';
 import draggable from 'vuedraggable-es';
 import { useToast } from 'vue-toastification';
+import ConfirmationToast from './ConfirmationToast.vue';
 
 export default {
   name: 'PageTreeItem',
@@ -52,24 +53,21 @@ export default {
     };
 
     const handleDelete = (id) => {
-      toast(
+      const toastId = toast.warning(
         {
-          component: 'confirmation', // Use the registered component name
+          component: ConfirmationToast,
           props: {
             message: `Delete "${props.page.title}"? Its children will be moved to the top level.`,
           },
-        },
-        {
-          // options for the toast itself
-          timeout: false,
-          closeOnClick: false,
-          draggable: false,
-          position: 'top-center',
-          onClose: (confirmed) => {
-            if (confirmed) {
+          listeners: {
+            cancel: () => {
+              toast.dismiss(toastId);
+            },
+            confirm: () => {
+              toast.dismiss(toastId);
               pagesStore.deletePage(id);
             }
-          },
+          }
         }
       );
     };
