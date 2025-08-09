@@ -8,6 +8,24 @@ This document outlines the high-level architecture and design of the Notion-like
 
 The system is composed of two main services, managed by Docker Compose:
 
+```mermaid
+graph TD
+    User --> Frontend
+    Frontend -- HTTP/S (API Calls) --> Backend
+    Backend -- Go/PocketBase API --> PocketBase[PocketBase Database]
+
+    subgraph Docker Compose
+        Frontend
+        Backend
+    end
+
+    subgraph Frontend Interactions
+        Frontend -- Login/Register --> Backend
+        Frontend -- Manage Pages (CRUD) --> Backend
+        Frontend -- Manage Tasks (CRUD) --> Backend
+    end
+```
+
 -   **Frontend Application:** A Vue.js Single-Page Application (SPA) that runs in the user's browser. It is responsible for the user interface, user experience, and all client-side logic.
 -   **Backend Service:** A custom Go application that embeds and utilizes PocketBase as a library, providing the database, user authentication, and a real-time API.
 
