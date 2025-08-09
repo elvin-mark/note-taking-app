@@ -5,7 +5,6 @@
       <Codemirror
         v-model="localContent"
         placeholder="Write your Markdown here..."
-        :style="{ height: '100%' }"
         :autofocus="true"
         :indent-with-tab="true"
         :tab-size="2"
@@ -58,6 +57,11 @@ watch(() => props.modelValue, (newValue: string) => {
 .editor-pane .cm-editor {
   height: 100%;
   outline: none;
+}
+.editor-pane .cm-scroller {
+    max-height: 500px;
+    overflow-y: auto;
+    overflow-x: hidden;
 }
 .preview-pane h1, .preview-pane h2, .preview-pane h3 {
   font-weight: bold;
