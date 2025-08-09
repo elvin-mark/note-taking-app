@@ -1,0 +1,21 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Custom styles for vue-toastification */
+.custom-toast-container {
+  /* Ensure the container is visible and lays out children correctly */
+  display: flex;
+  flex-direction: column;
+  gap: 10px; /* Space between toasts */
+}
+
+.custom-toast-item {
+  /* Basic styling for individual toast items */
+  background-color: white;
+  border-radius: 8px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  padding: 0; /* Remove default padding from vue-toastification */
+  min-width: 280px; /* Ensure it has a minimum width */
+  box-sizing: border-box; /* Include padding and border in the element's total width and height */
+}
