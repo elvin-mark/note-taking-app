@@ -1,28 +1,41 @@
 import { defineStore } from 'pinia';
-import { ref } from 'vue';
-import pb from '../services/pocketbase';
-import { useAuthStore } from './auth';
+import { ref, type Ref } from 'vue';
+import pb from '../services/pocketbase.ts';
+import { useAuthStore } from './auth.ts';
 import { useToast } from 'vue-toastification';
 
+// Define the Task interface
+interface Task {
+  id: string;
+  collectionId: string;
+  collectionName: string;
+  title: string;
+  completed: boolean;
+  page: string; // ID of parent page
+  owner: string; // ID of owner user
+  created: string;
+  updated: string;
+}
+
 export const useTasksStore = defineStore('tasks', () => {
-  const tasks = ref([]);
-  const isLoading = ref(false);
-  const isCreating = ref(false);
+  const tasks: Ref<Task[]> = ref([]);
+  const isLoading: Ref<boolean> = ref(false);
+  const isCreating: Ref<boolean> = ref(false);
   const toast = useToast();
 
-  async function fetchTasks(pageId) {
+  async function fetchTasks(pageId: string): Promise<void> {
     if (!pageId) {
       tasks.value = [];
       return;
     }
     isLoading.value = true;
     try {
-      const records = await pb.collection('tasks').getFullList({
+      const records = await pb.collection('tasks').getFullList<Task>({
         filter: `page = "${pageId}"`,
         sort: '-created',
       });
       tasks.value = records;
-    } catch (error) {
+    } catch (error: any) {
       toast.error('Failed to fetch tasks.');
       console.error('Failed to fetch tasks:', error);
       tasks.value = [];
@@ -31,7 +44,7 @@ export const useTasksStore = defineStore('tasks', () => {
     }
   }
 
-  async function createTask(pageId, title) {
+  async function createTask(pageId: string, title: string): Promise<Task> {
     isCreating.value = true;
     const authStore = useAuthStore();
     if (!authStore.user || !authStore.user.id) {
@@ -40,7 +53,7 @@ export const useTasksStore = defineStore('tasks', () => {
         throw new Error("User not authenticated or user ID is missing.");
     }
     try {
-      const record = await pb.collection('tasks').create({
+      const record = await pb.collection('tasks').create<Task>({
         title,
         page: pageId,
         owner: authStore.user.id,
@@ -48,7 +61,7 @@ export const useTasksStore = defineStore('tasks', () => {
       });
       tasks.value.unshift(record);
       return record;
-    } catch (error) {
+    } catch (error: any) {
       toast.error('Failed to create task.');
       console.error('Failed to create task:', error);
       throw error;
@@ -57,27 +70,27 @@ export const useTasksStore = defineStore('tasks', () => {
     }
   }
 
-  async function updateTask(taskId, data) {
+  async function updateTask(taskId: string, data: Partial<Task>): Promise<Task> {
     try {
-      const record = await pb.collection('tasks').update(taskId, data);
+      const record = await pb.collection('tasks').update<Task>(taskId, data);
       const index = tasks.value.findIndex(t => t.id === taskId);
       if (index !== -1) {
         tasks.value[index] = { ...tasks.value[index], ...record };
       }
       return record;
-    } catch (error) {
+    } catch (error: any) {
       toast.error('Failed to update task.');
       console.error('Failed to update task:', error);
       throw error;
     }
   }
 
-  async function deleteTask(taskId) {
+  async function deleteTask(taskId: string): Promise<void> {
     try {
       await pb.collection('tasks').delete(taskId);
       tasks.value = tasks.value.filter(t => t.id !== taskId);
       toast.success('Task deleted.');
-    } catch (error) {
+    } catch (error: any) {
       toast.error('Failed to delete task.');
       console.error('Failed to delete task:', error);
       throw error;

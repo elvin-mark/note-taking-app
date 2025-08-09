@@ -30,9 +30,9 @@
   </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { ref, watch } from 'vue';
-import { useTasksStore } from '../stores/tasks';
+import { useTasksStore } from '../stores/tasks.ts';
 import TaskItem from './TaskItem.vue';
 import { useToast } from 'vue-toastification';
 

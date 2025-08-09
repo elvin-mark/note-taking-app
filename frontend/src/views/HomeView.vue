@@ -24,13 +24,14 @@
   </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { ref, watch } from 'vue';
-import { usePagesStore } from '../stores/pages';
+import { usePagesStore } from '../stores/pages.ts';
 import Sidebar from '../components/Sidebar.vue';
 import Editor from '../components/Editor.vue';
 import TaskList from '../components/TaskList.vue';
 import { debounce } from 'lodash-es';
+
 
 const pagesStore = usePagesStore();
 const title = ref('');
@@ -52,7 +53,7 @@ const updateTitle = () => {
   }
 };
 
-const updateContent = debounce((newContent) => {
+const updateContent = debounce((newContent: any) => {
   pagesStore.updateSelectedPageContent(newContent);
 }, 500); // Debounce updates to avoid excessive API calls
 

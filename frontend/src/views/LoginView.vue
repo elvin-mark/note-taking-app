@@ -20,10 +20,10 @@
   </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { ref } from 'vue';
 import { useRouter } from 'vue-router';
-import { useAuthStore } from '../stores/auth';
+import { useAuthStore } from '../stores/auth.ts';
 import { useToast } from 'vue-toastification';
 
 const email = ref('');
@@ -36,7 +36,7 @@ const handleLogin = async () => {
   try {
     await authStore.login(email.value, password.value);
     router.push('/');
-  } catch (error) {
+  } catch (error: any) {
     toast.error('Login Failed: ' + error.message);
   }
 };

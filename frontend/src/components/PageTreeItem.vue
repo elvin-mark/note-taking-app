@@ -26,33 +26,35 @@
   </div>
 </template>
 
-<script>
+<script lang="ts">
 // Using options API to be able to name the component for recursion
-import { usePagesStore } from '../stores/pages';
+import { usePagesStore } from '../stores/pages.ts'; // Updated import
 import draggable from 'vuedraggable-es';
 import { useToast } from 'vue-toastification';
+import type { Page } from '../stores/pages.ts'; // Import Page type
+import type { PropType } from 'vue'; // Import PropType
 import ConfirmationToast from './ConfirmationToast.vue';
 
 export default {
   name: 'PageTreeItem',
   props: {
     page: {
-      type: Object,
+      type: Object as PropType<Page>, // Type annotation for prop
       required: true,
     },
   },
   components: {
     draggable,
   },
-  setup(props) {
+  setup(props: { page: Page }) { // Type annotation for props
     const pagesStore = usePagesStore();
     const toast = useToast();
 
-    const selectPage = (id) => {
+    const selectPage = (id: string): void => {
       pagesStore.selectPage(id);
     };
 
-    const handleDelete = (id) => {
+    const handleDelete = (id: string): void => {
       const toastId = toast.warning(
         {
           component: ConfirmationToast,
@@ -72,10 +74,10 @@ export default {
       );
     };
 
-    const onDragChange = (event) => {
+    const onDragChange = (event: { added?: { element: Page; newIndex: number; }; removed?: { element: Page; oldIndex: number; }; }): void => {
         if (event.added) {
-            const movedPage = event.added.element;
-            const newParentId = props.page.id;
+            const movedPage: Page = event.added.element;
+            const newParentId: string | null = props.page.id; // Parent is the current page
             pagesStore.updatePageParent(movedPage.id, newParentId);
         }
     };

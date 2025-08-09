@@ -15,7 +15,7 @@
         @change="onDragChange"
       >
         <template #item="{ element }">
-          <PageTreeItem :page="element" />
+          <PageTreeItem :page="element as Page" />
         </template>
       </draggable>
     </nav>
@@ -37,14 +37,15 @@
   </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { onMounted } from 'vue';
 import { useRouter } from 'vue-router';
-import { useAuthStore } from '../stores/auth';
-import { usePagesStore } from '../stores/pages';
+import { useAuthStore } from '../stores/auth.ts';
+import { usePagesStore } from '../stores/pages.ts'; // Updated import
 import { useToast } from 'vue-toastification';
 import draggable from 'vuedraggable-es';
 import PageTreeItem from './PageTreeItem.vue';
+import type { Page } from '../stores/pages.ts'; // Import Page type
 
 const authStore = useAuthStore();
 const pagesStore = usePagesStore();
@@ -55,7 +56,7 @@ onMounted(() => {
   pagesStore.fetchPages();
 });
 
-const handleNewPage = async () => {
+const handleNewPage = async (): Promise<void> => {
   if (!authStore.user || !authStore.user.id) {
     toast.error('Could not create page: User is not properly logged in.');
     return;
@@ -67,20 +68,20 @@ const handleNewPage = async () => {
       owner: authStore.user.id,
       parent: null,
     });
-  } catch (error) {
+  } catch (error: any) {
     toast.error('Could not create new page.');
   }
 };
 
-const handleLogout = () => {
+const handleLogout = (): void => {
   authStore.logout();
   pagesStore.selectPage(null);
   router.push('/login');
 };
 
-const onDragChange = (event) => {
+const onDragChange = (event: { added?: { element: Page; newIndex: number; }; removed?: { element: Page; oldIndex: number; }; }): void => {
     if (event.added) {
-        const movedPage = event.added.element;
+        const movedPage: Page = event.added.element;
         // A page added to the root level has its parent set to null
         pagesStore.updatePageParent(movedPage.id, null);
     }

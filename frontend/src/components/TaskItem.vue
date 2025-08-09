@@ -17,8 +17,8 @@
   </li>
 </template>
 
-<script setup>
-import { useTasksStore } from '../stores/tasks';
+<script setup lang="ts">
+import { useTasksStore } from '../stores/tasks.ts';
 
 const props = defineProps({
   task: {

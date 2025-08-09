@@ -18,33 +18,36 @@
   </div>
 </template>
 
-<script setup>
-import { ref, computed, watch } from 'vue';
+<script setup lang="ts">
+import { ref, computed, watch, type Ref } from 'vue';
 import { Codemirror } from 'vue-codemirror';
 import { markdown } from '@codemirror/lang-markdown';
 import { marked } from 'marked';
 
-const props = defineProps({
-  modelValue: {
-    type: String,
-    default: '',
-  },
-});
+interface Props {
+  modelValue: string;
+}
 
-const emit = defineEmits(['update:modelValue']);
+const props = defineProps<Props>();
 
-const localContent = ref(props.modelValue);
+interface Emits {
+  (e: 'update:modelValue', value: string): void;
+}
+
+const emit = defineEmits<Emits>();
+
+const localContent: Ref<string> = ref(props.modelValue);
 const extensions = [markdown()];
 
-const renderedMarkdown = computed(() => {
-  return marked.parse(localContent.value);
+const renderedMarkdown = computed<string>(() => {
+  return marked.parse(localContent.value) as string;
 });
 
-const handleChange = (value) => {
+const handleChange = (value: string): void => {
   emit('update:modelValue', value);
 };
 
-watch(() => props.modelValue, (newValue) => {
+watch(() => props.modelValue, (newValue: string) => {
   if (newValue !== localContent.value) {
     localContent.value = newValue;
   }

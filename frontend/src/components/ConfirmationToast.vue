@@ -12,12 +12,16 @@
   </div>
 </template>
 
-<script setup >
+<script setup lang="ts">
+interface Props {
+  message: string;
+}
 
-defineProps({
-  message: {
-    type: String,
-    required: true,
-  },
-});
+defineProps<Props>();
+
+// Define emitted events
+defineEmits<{
+  (e: 'confirm'): void;
+  (e: 'cancel'): void;
+}>();
 </script>
