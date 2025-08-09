@@ -15,6 +15,9 @@
     <!-- Preview Pane -->
     <div class="preview-pane p-4 overflow-y-auto prose" v-html="renderedMarkdown"></div>
   </div>
+  <button @click="copyContent" class="top-2 right-2 bg-blue-500 hover:bg-blue-700 text-white font-bold my-2 py-1 px-3 rounded z-10">
+    Copy
+  </button>
 </template>
 
 <script setup lang="ts">
@@ -22,6 +25,7 @@ import { ref, computed, watch, type Ref } from 'vue';
 import { Codemirror } from 'vue-codemirror';
 import { markdown } from '@codemirror/lang-markdown';
 import { marked } from 'marked';
+import { useToast } from 'vue-toastification';
 
 interface Props {
   modelValue: string;
@@ -37,6 +41,7 @@ const emit = defineEmits<Emits>();
 
 const localContent: Ref<string> = ref(props.modelValue);
 const extensions = [markdown()];
+const toast = useToast();
 
 const renderedMarkdown = computed<string>(() => {
   return marked.parse(localContent.value) as string;
@@ -44,6 +49,16 @@ const renderedMarkdown = computed<string>(() => {
 
 const handleChange = (value: string): void => {
   emit('update:modelValue', value);
+};
+
+const copyContent = async (): Promise<void> => {
+  try {
+    await navigator.clipboard.writeText(localContent.value);
+    toast.success("Content copied to clipboard!");
+  } catch (err) {
+    console.error('Failed to copy content: ', err);
+    toast.error("Failed to copy content.");
+  }
 };
 
 watch(() => props.modelValue, (newValue: string) => {
