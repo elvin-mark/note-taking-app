@@ -1,6 +1,11 @@
 <template>
   <div>
     <div class="flex items-center justify-between p-2 rounded-md hover:bg-gray-700 group">
+      <button v-if="page.children && page.children.length > 0" @click="toggleCollapse" class="mr-2">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor" :class="{'transform rotate-90': !isCollapsed}">
+          <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd" />
+        </svg>
+      </button>
       <a href="#" @click.prevent="selectPage(page.id)" class="flex-grow" :class="{ 'font-bold': pagesStore.selectedPage?.id === page.id }">
         {{ page.title || 'Untitled' }}
       </a>
@@ -12,7 +17,7 @@
     </div>
     <!-- The nested draggable will be here, managed by the component itself -->
     <draggable
-      v-if="page.children"
+      v-if="page.children && !isCollapsed"
       :list="page.children"
       item-key="id"
       group="pages"
@@ -34,6 +39,7 @@ import { useToast } from 'vue-toastification';
 import type { Page } from '../stores/pages.ts'; // Import Page type
 import type { PropType } from 'vue'; // Import PropType
 import ConfirmationToast from './ConfirmationToast.vue';
+import { ref } from 'vue';
 
 export default {
   name: 'PageTreeItem',
@@ -49,6 +55,7 @@ export default {
   setup(props: { page: Page }) { // Type annotation for props
     const pagesStore = usePagesStore();
     const toast = useToast();
+    const isCollapsed = ref(true);
 
     const selectPage = (id: string): void => {
       pagesStore.selectPage(id);
@@ -82,11 +89,17 @@ export default {
         }
     };
 
+    const toggleCollapse = () => {
+      isCollapsed.value = !isCollapsed.value;
+    };
+
     return {
       pagesStore,
       selectPage,
       handleDelete,
       onDragChange,
+      isCollapsed,
+      toggleCollapse,
     };
   },
 };

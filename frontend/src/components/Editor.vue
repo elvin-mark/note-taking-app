@@ -1,23 +1,38 @@
 <template>
-  <div class="grid grid-cols-2 gap-4 border rounded-lg shadow-md" style="height: calc(100vh - 200px);">
-    <!-- Markdown Editor Pane -->
-    <div class="editor-pane">
-      <Codemirror
-        v-model="localContent"
-        placeholder="Write your Markdown here..."
-        :autofocus="true"
-        :indent-with-tab="true"
-        :tab-size="2"
-        :extensions="extensions"
-        @change="handleChange"
-      />
+  <div>
+    <div class="flex justify-end mb-2">
+      <button @click="togglePreview" class="bg-gray-200 hover:bg-gray-300 text-gray-800 font-bold py-2 px-4 rounded">
+        {{ showPreviewOnly ? 'Show Editor' : 'Show Preview' }}
+      </button>
     </div>
-    <!-- Preview Pane -->
-    <div class="preview-pane p-4 overflow-y-auto prose" v-html="renderedMarkdown"></div>
+    <div 
+      class="grid gap-4 border rounded-lg shadow-md" 
+      :class="{'grid-cols-1': showPreviewOnly, 'grid-cols-2': !showPreviewOnly}" 
+      style="height: calc(100vh - 200px);"
+    >
+      <!-- Markdown Editor Pane -->
+      <div v-if="!showPreviewOnly" class="editor-pane">
+        <Codemirror
+          v-model="localContent"
+          placeholder="Write your Markdown here..."
+          :autofocus="true"
+          :indent-with-tab="true"
+          :tab-size="2"
+          :extensions="extensions"
+          @change="handleChange"
+        />
+      </div>
+      <!-- Preview Pane -->
+      <div 
+        class="preview-pane p-4 overflow-y-auto prose" 
+        :class="{'col-span-2': showPreviewOnly}" 
+        v-html="renderedMarkdown"
+      ></div>
+    </div>
+    <button @click="copyContent" class="top-2 right-2 bg-blue-500 hover:bg-blue-700 text-white font-bold my-2 py-1 px-3 rounded z-10">
+      Copy
+    </button>
   </div>
-  <button @click="copyContent" class="top-2 right-2 bg-blue-500 hover:bg-blue-700 text-white font-bold my-2 py-1 px-3 rounded z-10">
-    Copy
-  </button>
 </template>
 
 <script setup lang="ts">
@@ -42,6 +57,7 @@ const emit = defineEmits<Emits>();
 const localContent: Ref<string> = ref(props.modelValue);
 const extensions = [markdown()];
 const toast = useToast();
+const showPreviewOnly = ref(true);
 
 const renderedMarkdown = computed<string>(() => {
   return marked.parse(localContent.value) as string;
@@ -59,6 +75,10 @@ const copyContent = async (): Promise<void> => {
     console.error('Failed to copy content: ', err);
     toast.error("Failed to copy content.");
   }
+};
+
+const togglePreview = (): void => {
+  showPreviewOnly.value = !showPreviewOnly.value;
 };
 
 watch(() => props.modelValue, (newValue: string) => {
@@ -84,7 +104,6 @@ watch(() => props.modelValue, (newValue: string) => {
 /* Add more prose styles for better preview */
 .prose {
 	color: #374151;
-	max-width: 65ch;
 }
 .prose :where(code):not(:where([class~="not-prose"] *)) {
 	color: #1f2937;
