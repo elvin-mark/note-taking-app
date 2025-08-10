@@ -37,7 +37,7 @@ graph TD
 -   **State Management:** `pinia` is used to manage global application state, including the authenticated user's session and cached data like the page tree.
 -   **Styling:** TailwindCSS is used for a utility-first styling approach.
 -   **Editor:** The editor component provides a side-by-side markdown editor and preview. It includes a toggle to show only the preview pane.
--   **Sidebar:** The sidebar displays a hierarchical view of pages. Child pages can be collapsed and expanded for better navigation.
+-   **Sidebar:** The sidebar displays a hierarchical view of pages. Child pages can be collapsed and expanded for better navigation. Users can also quickly add child pages from the sidebar.
 
 ### 2.2. Backend (Go with PocketBase)
 

@@ -57,6 +57,6 @@ A web application for knowledge sharing, organization, project management, and t
 - [ ] User Authentication (Login/Register)
 - [ ] CRUD operations for Pages
 - [ ] Rich-text editor for page content with preview toggle
-- [ ] Hierarchical page organization with collapsible sections
+- [ ] Hierarchical page organization with collapsible sections and easy child page creation
 - [ ] Real-time collaboration
 - [ ] Task management

@@ -9,6 +9,11 @@
       <a href="#" @click.prevent="selectPage(page.id)" class="flex-grow" :class="{ 'font-bold': pagesStore.selectedPage?.id === page.id }">
         {{ page.title || 'Untitled' }}
       </a>
+      <button @click.stop="handleAddChild(page.id)" class="hidden group-hover:block text-gray-400 hover:text-white ml-2">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+          <path fill-rule="evenodd" d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z" clip-rule="evenodd" />
+        </svg>
+      </button>
       <button @click.stop="handleDelete(page.id)" class="hidden group-hover:block text-gray-400 hover:text-red-500 ml-2">
         <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
           <path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm4 0a1 1 0 012 0v6a1 1 0 11-2 0V8z" clip-rule="evenodd" />
@@ -34,6 +39,7 @@
 <script lang="ts">
 // Using options API to be able to name the component for recursion
 import { usePagesStore } from '../stores/pages.ts'; // Updated import
+import { useAuthStore } from '../stores/auth.ts';
 import draggable from 'vuedraggable-es';
 import { useToast } from 'vue-toastification';
 import type { Page } from '../stores/pages.ts'; // Import Page type
@@ -45,7 +51,7 @@ export default {
   name: 'PageTreeItem',
   props: {
     page: {
-      type: Object as PropType<Page>, // Type annotation for prop
+      type: Object as PropType<Page>,
       required: true,
     },
   },
@@ -54,6 +60,7 @@ export default {
   },
   setup(props: { page: Page }) { // Type annotation for props
     const pagesStore = usePagesStore();
+    const authStore = useAuthStore();
     const toast = useToast();
     const isCollapsed = ref(true);
 
@@ -81,6 +88,24 @@ export default {
       );
     };
 
+    const handleAddChild = async (parentId: string) => {
+      if (!authStore.user || !authStore.user.id) {
+        toast.error('Could not create page: User is not properly logged in.');
+        return;
+      }
+      try {
+        await pagesStore.createPage({
+          title: 'Untitled',
+          content: '',
+          owner: authStore.user.id,
+          parent: parentId,
+        });
+        isCollapsed.value = false; // Open the parent to show the new child
+      } catch (error: any) {
+        toast.error('Could not create new page.');
+      }
+    };
+
     const onDragChange = (event: { added?: { element: Page; newIndex: number; }; removed?: { element: Page; oldIndex: number; }; }): void => {
         if (event.added) {
             const movedPage: Page = event.added.element;
@@ -100,6 +125,7 @@ export default {
       onDragChange,
       isCollapsed,
       toggleCollapse,
+      handleAddChild,
     };
   },
 };
